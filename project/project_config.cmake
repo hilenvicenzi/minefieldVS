@@ -1,6 +1,6 @@
 # Rename this file to project_config.cmake for it to take effect
 
-set(project_config_name "cpp_prj_model") # Replace cpp_prj_model with your project's name
+set(project_config_name "minefield") # Replace cpp_prj_model with your project's name
 set(project_config_type EXE) # STATIC, SHARED, EXE
 set(project_config_cpp_std 20)
 set(project_config_use_clang_tidy true)
@@ -43,7 +43,7 @@ set(link_libraries jngl)
 
 # set(project_config_extra_sources "someFile.cpp") # Extra sources that need to be compiled as part of the main project
 
-# set(project_config_unit_tests_extra_sources "../src/*.cpp") # Extra sources that need to be compiled as part of a tests project
+set(project_config_unit_tests_extra_sources "../src/minefield/*.cpp") # Extra sources that need to be compiled as part of a tests project
 # set(project_config_unit_tests_extra_libraries "dbghelp") # Extra libraries that need to be linked as part of a tests project
 
 # set(project_config_benchmark_extra_sources "../src/*.cpp") # Extra sources that need to be compiled as part of a benchmark project

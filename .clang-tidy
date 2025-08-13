@@ -9,6 +9,7 @@ Checks: >
     performance-*,
     portability-*,
     readability-*
+    readability-braces-around-statements
 
 CheckOptions:
   - { key: readability-identifier-naming.ClassCase, value: CamelCase }
@@ -19,3 +20,15 @@ CheckOptions:
   - { key: readability-identifier-naming.MemberCase, value: camelBack }
   - { key: readability-identifier-naming.PublicMemberCase, value: camelBack }
   - { key: readability-identifier-naming.PublicMemberSuffix, value: '' }
+  - { key: readability-identifier-naming.MemberConstantCase,   value: CamelCase }
+  - { key: readability-identifier-naming.MemberConstantPrefix, value: 'k' }
+  - { key: readability-identifier-naming.ConstexprVariableCase,   value: CamelCase }
+  - { key: readability-identifier-naming.ConstexprVariablePrefix, value: 'k' }
+  - { key: readability-identifier-naming.ClassConstantCase,   value: CamelCase }
+  - { key: readability-identifier-naming.ClassConstantPrefix, value: 'k' }
+  - { key: readability-identifier-naming.GlobalConstantCase,   value: CamelCase }
+  - { key: readability-identifier-naming.GlobalConstantPrefix, value: 'k' }
+  - { key: readability-identifier-naming.ConstantCase,   value: CamelCase }
+  - { key: readability-identifier-naming.ConstantPrefix, value: 'k' }
+  - { key: readability-identifier-naming.ClassMemberIgnoredRegexp, value: '^k[A-Z][A-Za-z0-9]*$' }
+  - { key: readability-braces-around-statements.ShortStatementLines, value: '0' }
