@@ -1,5 +1,7 @@
 #include "minefield/states.h"
 #include "minefield/gameContext.h"
+#include "minefield/inputs.h"
+#include "minefield/player.h"
 
 namespace MineGameStates
 {
@@ -34,8 +36,8 @@ State stateConfigUpdate(GameContext &ctx)
     MineRender::showConfigurationTitle();
 
     MineRender::showTableMeasurement();
-    unsigned int validWidth = MineBoard::askValidDimensions(AxisOptions::AxisOptionWidth);
-    unsigned int validHeight = MineBoard::askValidDimensions(AxisOptions::AxisOptionHeight);
+    unsigned int validWidth = MineInputs::askValidDimensions(AxisOptions::AxisOptionWidth);
+    unsigned int validHeight = MineInputs::askValidDimensions(AxisOptions::AxisOptionHeight);
     ctx.table.cellCount = validHeight * validWidth;
 
     MineRender::showMinesLimits();
@@ -54,14 +56,11 @@ State stateConfigUpdate(GameContext &ctx)
     std::string playersUsernamesTittle = MineRender::applyColor(Color::Magenta, "\nPlayers usernames\n");
     std::cout << playersUsernamesTittle;
 
-    for (int i = 0; i < amountOfRealPlayers; i++)
+    for (int i = 0; i < totalAmountOfPlayers; i++)
     {
-        MinePlayer::setPlayersNames(ctx.players, i, validMines, false);
-    }
-
-    for (int i = amountOfRealPlayers; i < totalAmountOfPlayers; i++)
-    {
-        MinePlayer::setPlayersNames(ctx.players, i, validMines, true);
+        bool isBot = (i >= amountOfRealPlayers) ? true : false;
+        std::string name = MineInputs::getPlayerNameFromUser(i, isBot);
+        MinePlayer::setPlayersNames(ctx.players, name, i, validMines, isBot);
     }
 
     ctx.table.height = validHeight;
@@ -75,7 +74,7 @@ State stateConfigUpdate(GameContext &ctx)
 State statePlaceMines(GameContext &ctx)
 {
     MineRender::clearConsoleBuffer();
-    MineBoard::showBoard(ctx.table);
+    MineRender::showBoard(ctx.table);
     MineGameContext::cleanPlayerMines(ctx);
     MineGameContext::addMines(ctx);
     return {&stateAddGuesses};
@@ -99,8 +98,8 @@ State stateCheckVictory(GameContext &ctx)
     if (playersWithMines == 0)
     {
         MineRender::clearConsoleBuffer();
-        MineBoard::showBoard(ctx.table);
-        std::cout << "It's a draw!\n";
+        MineRender::showBoard(ctx.table);
+        MineRender::showMessage("It's a draw!\n");
         MineRender::enterToContinue(false);
         return {&stateMainMenuUpdate};
     }
@@ -112,8 +111,8 @@ State stateCheckVictory(GameContext &ctx)
             if (player.numberOfmines > 0)
             {
                 MineRender::clearConsoleBuffer();
-                MineBoard::showBoard(ctx.table);
-                std::cout << player.name << " wins!\n";
+                MineRender::showBoard(ctx.table);
+                MineRender::showWinner(player.name);
                 MineRender::enterToContinue(false);
             }
         }
@@ -124,14 +123,14 @@ State stateCheckVictory(GameContext &ctx)
     if (ctx.table.cellCount < MinePlayer::amountOfTotalMines(ctx.players))
     {
         MineRender::clearConsoleBuffer();
-        MineBoard::showBoard(ctx.table);
+        MineRender::showBoard(ctx.table);
         std::cout <<"There are "<< MinePlayer::amountOfTotalMines(ctx.players) 
                 <<" mines left to place but there are " << ctx.table.cellCount 
                 << " cells in the board\n";
         std::string noCellsLeftMessage = "There is no more available cells in the board D:\n";
         MineRender::applyColor(Color::Red, noCellsLeftMessage);
         std::cout << noCellsLeftMessage;
-        std::cout << MinePlayer::winnerPlayer(ctx.players).name << " wins!\n";
+        MineRender::showWinner(MinePlayer::winnerPlayer(ctx.players).name);
         MineRender::enterToContinue(false);
         return {&stateMainMenuUpdate};
     }

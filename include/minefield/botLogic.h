@@ -1,9 +1,9 @@
 #pragma once
-#include "coord.h"
+#include "minefield/coord.h"
 
 namespace MineBot
 {
 unsigned int makeRandomDistribution(unsigned int measurement);
 Coord makeValidRandomCoord(unsigned int height, unsigned int width);
-Coord getValidBotCoord(Board &board);
+Coord getValidBotCoord(const Board &board);
 } // namespace MineBot

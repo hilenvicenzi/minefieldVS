@@ -20,7 +20,7 @@ Coord makeValidRandomCoord(unsigned int height, unsigned int width)
     return c;
 }
 
-Coord getValidBotCoord(Board &board)
+Coord getValidBotCoord(const Board &board)
 {
     Coord cBot = makeValidRandomCoord(board.height, board.width);
     while (board.grid[cBot.posX][cBot.posY] == CellState::Disabled)

@@ -1,4 +1,5 @@
 #include "minefield/render.h"
+#include "minefield/coord.h"
 #include <iostream>
 #include <iomanip>
 #include <mutex>
@@ -51,6 +52,36 @@ std::string applyColor(Color color, std::string const &toMessage)
 #endif
 }
 
+void showBoard(const Board &board)
+{
+    MineRender::showGameTittle(board);
+    std::cout << "   ";
+    for (unsigned int j = 0; j < board.width; ++j)
+    {
+        std::cout << std::setw(4) << j;
+    }
+    std::cout << '\n';
+    std::cout << "   ";
+    for (unsigned int j = 0; j < board.width; ++j)
+    {
+        std::cout << "----";
+    }
+    std::cout << "-\n";
+
+    for (int i = 0; i < board.grid.size(); ++i)
+    {
+        std::cout << std::setw(2) << i << '|';
+
+        for (const auto &cell : board.grid[i])
+        {
+            std::string symbol = (cell == CellState::Disabled) ? MineRender::applyColor(Color::Red, "   X") : " O";
+            std::cout << std::setw(4) << symbol;
+        }
+        std::cout << '\n';
+    }
+    std::cout << '\n';
+}
+
 void showMenu()
 {
     std::string titleMenu = MineRender::applyColor(Color::Yellow, "===== MENU =====\n");
@@ -61,7 +92,7 @@ void showMenu()
 void showGameTittle(const Board &board)
 {
     static const unsigned int kCellWidth = 4;
-    static const unsigned int kEdge = 12;
+    static const unsigned int kEdge = 14;
     unsigned int boardWidth = (board.width * kCellWidth) + kEdge;
     std::string boardTitle = MineRender::applyColor(Color::Red, "MINEFIELD");
     unsigned int padding = (boardWidth - boardTitle.length()) / 2;
@@ -87,9 +118,9 @@ void showPlayerData(Player const &player)
 
 void clearConsoleBuffer()
 {
-    static std::mutex mutex;
+    /*static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
-
+    */
     static char const *const kClearConsoleBufferCommand = "cls";
     system(kClearConsoleBufferCommand);
 }
@@ -100,7 +131,7 @@ void enterToContinue(bool isBot)
     {
         std::string outMessageBot = MineRender::applyColor(Color::Yellow, "\nThe computer is thinking...");
         std::cout << outMessageBot;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     else
     {
@@ -115,7 +146,7 @@ void clsAndShowBoard(Board const &board, bool isBot)
 {
     enterToContinue(isBot);
     clearConsoleBuffer();
-    MineBoard::showBoard(board);
+    showBoard(board);
 }
 
 void showConfigurationTitle()
@@ -147,4 +178,36 @@ void showAmountOfBotPlayers()
     std::string amountOfBotPlayersTittle = MineRender::applyColor(Color::Green, "How many bot players: ");
     std::cout << amountOfBotPlayersTittle;
 }
+
+void showMineAtPosition(int j, const Coord &mine)
+{
+    std::cout << "Mine #" << (j + 1) << " will be at [" << mine.posX << ", " << mine.posY << "]\n";
+
+}
+
+void showGuessNumber(int j)
+{
+    std::cout << "Guess #" << (j + 1) << '\n';
+}
+
+void showGuessAtPosition(int j, const Coord &mine)
+{
+    std::cout << "Guess #" << (j + 1) << " will be at [" << mine.posX << ", " << mine.posY << "]\n";
+}
+
+void showAmountOfGuessForAPLayer(const std::string &name, const unsigned int &guesses)
+{
+    std::cout << "Player " << name << " can enter " << guesses << " guesses\n";
+}
+
+void showMessage(std::string message)
+{
+    std::cout << message;
+}
+
+void showWinner(std::string name)
+{
+    std::cout << name << " wins!\n";
+}
+
 }

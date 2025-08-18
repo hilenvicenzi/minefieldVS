@@ -1,5 +1,5 @@
 #pragma once
-#include "board.h"
+#include "minefield/board.h"
 
 struct Board; 
 struct Coord

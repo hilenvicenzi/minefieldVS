@@ -3,132 +3,176 @@
 
 namespace MineGameContext
 {
-void cleanPlayerMines(GameContext &ctx)
-{
-    for (Player &player : ctx.players)
+    // switch based on actions
+    void configEventHandler(GameContext &ctx)
     {
-        player.playerMines.clear();
-    }
-}
-
-void addMines(GameContext &ctx)
-{
-    for (Player &player : ctx.players)
-    {
-        MineRender::showPlayerData(player);
-        player.playerMines.resize(player.numberOfmines);
-        for (unsigned int j = 0; j < player.numberOfmines; j++)
+        ctx.event = [](const Event &e)
         {
-            Coord &mine = player.playerMines[j];
-            if (player.isBot)
+            switch (e.action)
             {
-                mine = MineBot::getValidBotCoord(ctx.table);
-                player.playerMines[j] = mine;
-#ifdef DEBUG
-                std::cout << "BotMine #" << (j + 1) << " will be at [" << mine.posX << ", " << mine.posY << "]" << std::endl;
-#endif
-            }
-            else
+            case Action::PlayerData:
             {
-                mine = MineCoord::askValidCoordAndEmpty(ctx.table);
-                std::cout << "Mine #" << j + 1 << " will be at [" << mine.posX << ", " << mine.posY << "]\n";
-                player.playerMines[j] = mine;
+                //auto &data = std::get<OnlyPlayer>(e.args);
+                auto& dataPlayer = std::get<Player>(e.args);
+                MineRender::showPlayerData(dataPlayer);
+                break;
             }
-            MineBoard::makeCellUsed(ctx.table, mine);
+            case Action::PlaceMine:
+            {
+                auto& dataPlaceMine = std::get<std::pair<unsigned int, Coord>>(e.args);
+                MineRender::showMineAtPosition(dataPlaceMine.first, dataPlaceMine.second);
+                break;
+            }
+            case Action::GuessNumber:
+            {
+                auto& dataGuessNumber = std::get<unsigned int>(e.args);
+                MineRender::showGuessNumber(dataGuessNumber);
+                break;
+            }
+            case Action::GuessesFor:
+            {
+                auto const &dataGuessesFor = std::get < std::pair<std::string, unsigned int >> (e.args);
+                MineRender::showAmountOfGuessForAPLayer(dataGuessesFor.first, dataGuessesFor.second);
+                break;
+            }
+            default:
+                break;
+            }
+        };
+    }
+    //auto &data = std::get<OnlyValue<Player>>(e.args);
+    void cleanPlayerMines(GameContext &ctx)
+    {
+        for (Player &player : ctx.players)
+        {
+            player.playerMines.clear();
         }
-        MineRender::clsAndShowBoard(ctx.table, player.isBot);
     }
-}
 
-unsigned int amountOfCurrentGuesses(const GameContext &ctx)
-{
-    if (ctx.players.empty())
+Coord chooseMineCoord(GameContext& ctx, Player& player, unsigned int j, GetCoordFn const& botCoordFn, GetCoordFn const& humanCoordFn)
     {
-        return 0;
-    }
-    unsigned int minGuesses = ctx.players[0].playerMines.size();
-    for (int i = 1; i < ctx.players.size(); i++)
-    {
-        unsigned int size = ctx.players[i].playerMines.size();
-        minGuesses = std::min(minGuesses, size);
-    }
-    return minGuesses;
-
-}
-
-void addGuesses(GameContext &ctx)
-{
-    unsigned int guessesCount = MineGameContext::amountOfCurrentGuesses(ctx);
-    for (Player &player : ctx.players)
-    {
-        std::cout << "Player " << player.name << " can enter " << guessesCount << " guesses\n";
-        player.playerGuesses.resize(guessesCount);
-        for (unsigned int j = 0; j < guessesCount; j++)
+        Coord mine;
+        if (player.isBot)
         {
-            Coord &mine = player.playerGuesses[j];
-            if (player.isBot)
-            {
-                mine = MineBot::getValidBotCoord(ctx.table);
-                player.playerGuesses[j] = mine;
-#ifdef DEBUG
-                std::cout << "BotGuess #" << (j + 1) << " will be at [" << mine.posX << ", " << mine.posY << "]\n";
-#endif
-            }
-            else
-            {
-                std::cout << "Guess #" << (j + 1) << '\n';
-                mine = MineCoord::askValidCoordAndEmpty(ctx.table);
-                std::cout << "Guess #" << (j + 1) << " will be at [" << mine.posX << ", " << mine.posY << "]\n";
-                player.playerGuesses[j] = mine;
-            }
-            MineBoard::makeCellUsed(ctx.table, mine);
+            mine = botCoordFn(ctx, player, j);
+            player.playerMines[j] = mine;
         }
-        MineRender::clsAndShowBoard(ctx.table, player.isBot);
-    }
-}
-
-void processGuesses(GameContext &ctx)
-{
-    for (Player &attacker : ctx.players)
-    {
-        for (Player &defender : ctx.players)
+        else
         {
-            if (&attacker == &defender)
+            mine = humanCoordFn(ctx, player, j);
+            ctx.event(Event{Action::PlaceMine, std::pair<unsigned int, Coord>{j, mine}});
+            player.playerMines[j] = mine;
+        }
+        return mine;
+    }
+
+    void addMines(GameContext& ctx, GetCoordFn const& botCoordFn, GetCoordFn const& humanCoordFn)
+    {
+        for (Player& player : ctx.players)
+        {
+            ctx.event(Event{Action::PlayerData, player});
+            player.playerMines.resize(player.numberOfmines);
+
+            for (unsigned int j = 0; j < player.numberOfmines; j++)
             {
-                continue;
-            }
-            for (const Coord &mine : attacker.playerGuesses)
-            {
-                // player found another player mine
-                if (MineCoord::containsCoordinate(defender.playerMines, mine))
-                {
-                    defender.numberOfmines--;
-                }
-                // player found their own mine
-                if (MineCoord::containsCoordinate(attacker.playerMines, mine))
-                {
-                    attacker.numberOfmines--;
-                }
+                Coord mine = chooseMineCoord(ctx, player, j, botCoordFn, humanCoordFn);
                 MineBoard::makeCellUsed(ctx.table, mine);
             }
+            MineRender::clsAndShowBoard(ctx.table, player.isBot);
         }
     }
-}
 
-void resetMines(GameContext &ctx)
-{
-    for (Player &player : ctx.players)
+    unsigned int amountOfCurrentGuesses(const GameContext &ctx)
     {
-        for (const Coord &mine : player.playerMines)
+        if (ctx.players.empty())
         {
-            // changes cell state from used to disabled
-            if (ctx.table.grid[mine.posX][mine.posY] == CellState::Used)
+            return 0;
+        }
+        unsigned int minGuesses = ctx.players[0].playerMines.size();
+        for (int i = 1; i < ctx.players.size(); i++)
+        {
+            unsigned int size = ctx.players[i].playerMines.size();
+            minGuesses = std::min(minGuesses, size);
+        }
+        return minGuesses;
+    }
+
+    Coord chooseGuessCoord(GameContext& ctx, Player& player, unsigned int j, GetCoordFn const& botGuessFn, GetGuessFn const& humanGuessFn)
+    {
+        Coord& mine = player.playerGuesses[j];
+        if (player.isBot)
+        {
+            mine = botGuessFn(ctx, player, j);
+            player.playerGuesses[j] = mine;
+        }
+        else
+        {
+            ctx.event(Event{Action::GuessNumber, j});
+            mine = humanGuessFn(ctx, player, j);
+            ctx.event(Event{Action::GuessMineAt, std::pair<unsigned int,Coord>{j, mine}});
+            player.playerGuesses[j] = mine;
+        }
+        return mine;
+    }
+
+    void addGuesses(GameContext& ctx, GetCoordFn const& botGuessFn, GetGuessFn const& humanGuessFn)
+    {
+        unsigned int guessesCount = MineGameContext::amountOfCurrentGuesses(ctx);
+        for (Player &player : ctx.players)
+        {
+            ctx.event(Event{Action::GuessesFor, std::pair<std::string, unsigned int>{player.name, guessesCount}});
+            player.playerGuesses.resize(guessesCount);
+            for (unsigned int j = 0; j < guessesCount; j++)
             {
-                ctx.table.grid[mine.posX][mine.posY] = CellState::Disabled;
-                --ctx.table.cellCount;
+                Coord mine = chooseGuessCoord(ctx, player, j, botGuessFn, humanGuessFn); 
+                MineBoard::makeCellUsed(ctx.table, mine);
+            }
+            MineRender::clsAndShowBoard(ctx.table, player.isBot);
+        }
+    }
+
+    void processGuesses(GameContext &ctx)
+    {
+        for (Player &attacker : ctx.players)
+        {
+            for (Player &defender : ctx.players)
+            {
+                if (&attacker == &defender)
+                {
+                    continue;
+                }
+                for (const Coord &mine : attacker.playerGuesses)
+                {
+                    // player found another player mine
+                    if (MineCoord::containsCoordinate(defender.playerMines, mine) && defender.numberOfmines > 0)
+                    {
+                        defender.numberOfmines--;
+                    }
+                    // player found their own mine
+                    if (MineCoord::containsCoordinate(attacker.playerMines, mine) && attacker.numberOfmines > 0)
+                    {
+                        attacker.numberOfmines--;
+                    }
+                    MineBoard::makeCellUsed(ctx.table, mine);
+                }
             }
         }
-        player.playerMines.clear();
     }
-}
+
+    void resetMines(GameContext &ctx)
+    {
+        for (Player &player : ctx.players)
+        {
+            for (const Coord &mine : player.playerMines)
+            {
+                // changes cell state from used to disabled
+                if (ctx.table.grid[mine.posX][mine.posY] == CellState::Used)
+                {
+                    ctx.table.grid[mine.posX][mine.posY] = CellState::Disabled;
+                    --ctx.table.cellCount;
+                }
+            }
+            player.playerMines.clear();
+        }
+    }
 } // namespace MineGameContext

@@ -1,8 +1,10 @@
 #include "minefield/coord.h"
 #include <iostream>
+#include <functional>
 
 namespace MineCoord
 {
+
 Coord askValidCoord(const Board &board)
 {
     unsigned int row = board.width + 1;
@@ -33,14 +35,15 @@ bool containsCoordinate(const std::vector<Coord> &coordinates, Coord coord)
     return false;
 }
 
-Coord askValidCoordAndEmpty(const Board &board)
+Coord askValidCoordAndEmpty(Board const& board)
 {
     Coord validCoord = askValidCoord(board);
     while (board.grid[validCoord.posX][validCoord.posY] == CellState::Disabled)
     {
-        std::cout << "Cell already disabled. Pick another.\n";
+        MineRender::showMessage("Cell already disabled. Pick another.\n");
         validCoord = askValidCoord(board);
     }
     return validCoord;
 }
+
 } // namespace MineCoord

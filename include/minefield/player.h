@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "coord.h"
+#include "minefield/coord.h"
 
 struct Coord;
 
@@ -17,15 +17,15 @@ struct Player
 
 namespace MinePlayer
 {
-void addNewPlayer (std::vector<Player> &player, std::string playername, int number, unsigned int mines, bool isBot);
+    void addNewPlayer(std::vector<Player> &player, std::string playername, int number, unsigned int mines, bool isBot);
 
-void setPlayersNames(std::vector<Player> &player, int number, unsigned int mines, bool isBot);
+    void setPlayersNames(std::vector<Player> &player, const std::string &playerName, int number, unsigned int mines, bool isBot);
 
-int getPlayersWithMines(const std::vector<Player> &players);
+    int getPlayersWithMines(const std::vector<Player> &players);
 
-void eraseLoser(std::vector<Player> &players);
+    void eraseLoser(std::vector<Player> &players);
 
-Player winnerPlayer (const std::vector<Player> &players);
+    Player winnerPlayer(const std::vector<Player> &players);
 
-unsigned int amountOfTotalMines(const std::vector<Player> &players);
+    unsigned int amountOfTotalMines(const std::vector<Player> &players);
 } // namespace MinePlayer

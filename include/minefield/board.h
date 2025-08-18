@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "coord.h"
-#include "render.h"
+#include "minefield/coord.h"
+#include "minefield/render.h"
 
 static const int kMinDim = 5;
 static const int kMaxDim = 50;
@@ -25,7 +25,6 @@ struct Board
     unsigned int cellCount = 0;
 };
 
-
 enum class AxisOptions
 {
     AxisOptionWidth,
@@ -34,7 +33,7 @@ enum class AxisOptions
 
 namespace MineBoard
 {
-void showBoard(const Board &board);
 void makeCellUsed(Board &board, const Coord &coord);
-unsigned int askValidDimensions(AxisOptions axisOption);
+bool isValidDimension(unsigned int value);
+
 } // namespace MineBoard
