@@ -3,6 +3,10 @@
 #include "botLogic.h"
 #include "board.h"
 #include "player.h"
+#include "render.h"
+#include "Coord.h"
+#include "eventsUI.h"
+
 #include <vector>
 #include <iostream>
 #include <functional>
@@ -11,6 +15,7 @@
 
 struct State;
 struct GameContext;
+struct UiEvent;
 
 // all the events that can happend in the game
 enum class Action : std::uint8_t
@@ -38,7 +43,6 @@ using EventArgs = std::variant<
     std::pair<std::string, unsigned int> 
 >;
 
-
 struct Event
 {
     Action action;
@@ -46,7 +50,6 @@ struct Event
 };
 
 using EventHandler = std::function<void(const Event&)>;
-
 struct GameContext
 {
     State currentState;
@@ -54,10 +57,12 @@ struct GameContext
     std::vector<Player> players;
     unsigned int guesses = 0;
     EventHandler event;
+    UiEventHandler uiEvent;
 };
 
 namespace MineGameContext
 {
+
 void configEventHandler(GameContext &ctx);
 void cleanPlayerMines(GameContext &ctx);
 

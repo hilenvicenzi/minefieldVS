@@ -2,13 +2,14 @@
 #include "minefield/gameContext.h"
 #include "minefield/inputs.h"
 #include "minefield/player.h"
+#include "minefield/eventsUI.h"
 
 namespace MineGameStates
 {
 NextState stateMainMenuUpdate(GameContext &ctx)
 {
-    MineRender::clearConsoleBuffer();
-    MineRender::showMenu();
+    ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
+    ctx.uiEvent(UiEvent{UiAction::ShowMenu, std::monostate{}});
     int opt = 0;
     static constexpr int kOptionPlay = 1;
     std::cin >> opt;
@@ -31,30 +32,29 @@ unsigned int askValidNumberOfMines()
 
 State stateConfigUpdate(GameContext &ctx)
 {
-    MineRender::clearConsoleBuffer();
+    ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
     ctx.players.clear();
-    MineRender::showConfigurationTitle();
+    ctx.uiEvent(UiEvent{UiAction::ShowConfigurationTitle, std::monostate{}});
 
-    MineRender::showTableMeasurement();
+    ctx.uiEvent(UiEvent{UiAction::ShowTableMeasurement, std::monostate{}});
     unsigned int validWidth = MineInputs::askValidDimensions(AxisOptions::AxisOptionWidth);
     unsigned int validHeight = MineInputs::askValidDimensions(AxisOptions::AxisOptionHeight);
     ctx.table.cellCount = validHeight * validWidth;
 
-    MineRender::showMinesLimits();
+    ctx.uiEvent(UiEvent{UiAction::ShowMinesLimits, std::monostate{}});
     unsigned int validMines = askValidNumberOfMines();
 
     int amountOfRealPlayers = 0;
-    MineRender::showAmountOfHumanPlayers();
+    ctx.uiEvent(UiEvent{UiAction::ShowAmountOfHumanPlayers, std::monostate{}});
     std::cin >> amountOfRealPlayers;
 
     int amountOfBotPlayers = 0;
-    MineRender::showAmountOfBotPlayers();
+    ctx.uiEvent(UiEvent{UiAction::ShowAmountOfBotPlayers, std::monostate{}});
     std::cin >> amountOfBotPlayers;
 
     int totalAmountOfPlayers = amountOfRealPlayers + amountOfBotPlayers;
 
-    std::string playersUsernamesTittle = MineRender::applyColor(Color::Magenta, "\nPlayers usernames\n");
-    std::cout << playersUsernamesTittle;
+    ctx.uiEvent(UiEvent{UiAction::ShowPlayersUsernames, std::monostate{}});
 
     for (int i = 0; i < totalAmountOfPlayers; i++)
     {
@@ -67,14 +67,14 @@ State stateConfigUpdate(GameContext &ctx)
     ctx.table.width = validWidth;
     ctx.table.grid = std::vector<std::vector<CellState>>(validHeight, std::vector<CellState>(validWidth, CellState::Empty));
     static const bool kContinueForHuman = false;
-    MineRender::enterToContinue(kContinueForHuman);
+    ctx.uiEvent(UiEvent{UiAction::EnterToContinue, kContinueForHuman});
     return {&statePlaceMines};
 }
 
 State statePlaceMines(GameContext &ctx)
 {
-    MineRender::clearConsoleBuffer();
-    MineRender::showBoard(ctx.table);
+    ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
+    ctx.uiEvent(UiEvent{UiAction::ShowBoard, ctx.table});
     MineGameContext::cleanPlayerMines(ctx);
     MineGameContext::addMines(ctx);
     return {&stateAddGuesses};
@@ -97,10 +97,10 @@ State stateCheckVictory(GameContext &ctx)
     int playersWithMines = MinePlayer::getPlayersWithMines(ctx.players);
     if (playersWithMines == 0)
     {
-        MineRender::clearConsoleBuffer();
-        MineRender::showBoard(ctx.table);
-        MineRender::showMessage("It's a draw!\n");
-        MineRender::enterToContinue(false);
+        ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
+        ctx.uiEvent(UiEvent{UiAction::ShowBoard, ctx.table});
+        ctx.uiEvent(UiEvent{UiAction::ShowMessage, "It's a draw!\n"});
+        ctx.uiEvent(UiEvent{UiAction::EnterToContinue, false});
         return {&stateMainMenuUpdate};
     }
 
@@ -110,10 +110,10 @@ State stateCheckVictory(GameContext &ctx)
         {
             if (player.numberOfmines > 0)
             {
-                MineRender::clearConsoleBuffer();
-                MineRender::showBoard(ctx.table);
-                MineRender::showWinner(player.name);
-                MineRender::enterToContinue(false);
+                ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
+                ctx.uiEvent(UiEvent{UiAction::ShowBoard, ctx.table});
+                ctx.uiEvent(UiEvent{UiAction::ShowWinner, player.name});
+                ctx.uiEvent(UiEvent{UiAction::EnterToContinue, false});
             }
         }
         return {&stateMainMenuUpdate};
@@ -122,16 +122,11 @@ State stateCheckVictory(GameContext &ctx)
     MineGameContext::resetMines(ctx);
     if (ctx.table.cellCount < MinePlayer::amountOfTotalMines(ctx.players))
     {
-        MineRender::clearConsoleBuffer();
-        MineRender::showBoard(ctx.table);
-        std::cout <<"There are "<< MinePlayer::amountOfTotalMines(ctx.players) 
-                <<" mines left to place but there are " << ctx.table.cellCount 
-                << " cells in the board\n";
-        std::string noCellsLeftMessage = "There is no more available cells in the board D:\n";
-        MineRender::applyColor(Color::Red, noCellsLeftMessage);
-        std::cout << noCellsLeftMessage;
-        MineRender::showWinner(MinePlayer::winnerPlayer(ctx.players).name);
-        MineRender::enterToContinue(false);
+        ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
+        ctx.uiEvent(UiEvent{UiAction::ShowBoard, ctx.table});
+        ctx.uiEvent(UiEvent{UiAction::MoreMinesThanCells, });
+        ctx.uiEvent(UiEvent{UiAction::ShowWinner, MinePlayer::winnerPlayer(ctx.players).name});
+        ctx.uiEvent(UiEvent{UiAction::EnterToContinue, false});
         return {&stateMainMenuUpdate};
     }
     MinePlayer::eraseLoser(ctx.players);

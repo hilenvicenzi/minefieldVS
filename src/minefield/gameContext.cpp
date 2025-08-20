@@ -4,35 +4,46 @@
 namespace MineGameContext
 {
     // switch based on actions
-    void configEventHandler(GameContext &ctx)
+    void configEventHandler(GameContext& ctx)
     {
-        ctx.event = [](const Event &e)
+        ctx.event = [](Event const& e)
         {
             switch (e.action)
             {
             case Action::PlayerData:
             {
-                //auto &data = std::get<OnlyPlayer>(e.args);
-                auto& dataPlayer = std::get<Player>(e.args);
-                MineRender::showPlayerData(dataPlayer);
+                if (std::holds_alternative<Player>(e.args))
+                {
+                    auto& p = std::get<Player>(e.args);
+                    MineRender::showPlayerData(p);
+                }
                 break;
             }
             case Action::PlaceMine:
             {
-                auto& dataPlaceMine = std::get<std::pair<unsigned int, Coord>>(e.args);
-                MineRender::showMineAtPosition(dataPlaceMine.first, dataPlaceMine.second);
+                if (std::holds_alternative<std::pair<unsigned int, Coord>>(e.args))
+                {
+                    auto& placeMine = std::get<std::pair<unsigned int, Coord>>(e.args);
+                    MineRender::showMineAtPosition(placeMine.first, placeMine.second);
+                }
                 break;
             }
             case Action::GuessNumber:
             {
-                auto& dataGuessNumber = std::get<unsigned int>(e.args);
-                MineRender::showGuessNumber(dataGuessNumber);
+                if (std::holds_alternative<unsigned int>(e.args))
+                {
+                    auto& guessNum = std::get<unsigned int>(e.args);
+                    MineRender::showGuessNumber(guessNum);
+                }
                 break;
             }
             case Action::GuessesFor:
             {
-                auto const &dataGuessesFor = std::get < std::pair<std::string, unsigned int >> (e.args);
-                MineRender::showAmountOfGuessForAPLayer(dataGuessesFor.first, dataGuessesFor.second);
+                if (std::holds_alternative<std::pair<std::string, unsigned int>>(e.args))
+                {
+                    auto& g = std::get<std::pair<std::string, unsigned int>>(e.args);
+                    MineRender::showAmountOfGuessForAPLayer(g.first, g.second);
+                }
                 break;
             }
             default:
@@ -40,7 +51,7 @@ namespace MineGameContext
             }
         };
     }
-    //auto &data = std::get<OnlyValue<Player>>(e.args);
+
     void cleanPlayerMines(GameContext &ctx)
     {
         for (Player &player : ctx.players)
@@ -78,7 +89,7 @@ Coord chooseMineCoord(GameContext& ctx, Player& player, unsigned int j, GetCoord
                 Coord mine = chooseMineCoord(ctx, player, j, botCoordFn, humanCoordFn);
                 MineBoard::makeCellUsed(ctx.table, mine);
             }
-            MineRender::clsAndShowBoard(ctx.table, player.isBot);
+            ctx.uiEvent(UiEvent{UiAction::ClearScreenAndShowBoard, std::pair<const Board, bool>{ctx.table, player.isBot}});
         }
     }
 
@@ -127,7 +138,7 @@ Coord chooseMineCoord(GameContext& ctx, Player& player, unsigned int j, GetCoord
                 Coord mine = chooseGuessCoord(ctx, player, j, botGuessFn, humanGuessFn); 
                 MineBoard::makeCellUsed(ctx.table, mine);
             }
-            MineRender::clsAndShowBoard(ctx.table, player.isBot);
+            ctx.uiEvent(UiEvent{UiAction::ClearScreenAndShowBoard, std::pair<Board const, bool>{ctx.table, player.isBot}});
         }
     }
 

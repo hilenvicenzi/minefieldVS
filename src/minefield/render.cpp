@@ -205,9 +205,22 @@ void showMessage(std::string message)
     std::cout << message;
 }
 
-void showWinner(std::string name)
+void showWinner(const std::string &name)
 {
     std::cout << name << " wins!\n";
 }
 
+void showPlayersUsernamesTitle()
+{
+    std::string playersUsernamesTittle = MineRender::applyColor(Color::Magenta, "\nPlayers usernames\n");
+    std::cout << playersUsernamesTittle;
+}
+void showMoreMinesThanCells(const std::vector<Player> &players, const Board &board)
+{
+    std::cout << "There are " << MinePlayer::amountOfTotalMines(players) << " mines left to place but there are "
+              << board.cellCount << " cells in the board\n";
+    std::string noCellsLeftMessage = "There are no more available cells in the board D:\n";
+    MineRender::applyColor(Color::Red, noCellsLeftMessage);
+    std::cout << noCellsLeftMessage;
+}
 }

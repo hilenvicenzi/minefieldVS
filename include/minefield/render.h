@@ -1,7 +1,11 @@
 #pragma once 
 #include <string>
-#include "minefield/board.h"
-#include "minefield/player.h"
+#include <variant>
+#include <tuple>
+#include <functional>
+#include <utility>
+#include "board.h"
+#include "player.h"
 
 struct Board;
 struct Player;
@@ -19,45 +23,48 @@ enum class Color
 
 namespace MineRender
 {
-char const *const colorString(Color forColor);
-std::string applyColorWindows(Color color, std::string const &toMessage);
-std::string applyColorPosix(Color color, std::string const &toMessage);
-std::string applyColor(Color color, std::string const &toMessage);
+    char const* const colorString(Color forColor);
+    std::string applyColorWindows(Color color, std::string const &toMessage);
+    std::string applyColorPosix(Color color, std::string const &toMessage);
+    std::string applyColor(Color color, std::string const &toMessage);
 
-void showBoard(const Board &board);
+    void showBoard(const Board &board);
 
-void showMenu();
+    void showMenu();
 
-void showGameTittle(const Board &board);
+    void showGameTittle(const Board &board);
 
-void showPlayerData(const Player &player);
+    void showPlayerData(const Player &player);
 
-void clearConsoleBuffer();
+    void clearConsoleBuffer();
 
-void enterToContinue(bool isBot);
+    void enterToContinue(bool isBot);
 
-void clsAndShowBoard(Board const &board, bool isBot);
+    void clsAndShowBoard(Board const &board, bool isBot);
 
-void showConfigurationTitle();
+    void showConfigurationTitle();
 
-void showTableMeasurement();
+    void showTableMeasurement();
 
-void showMinesLimits();
+    void showMinesLimits();
 
-void showAmountOfHumanPlayers();
+    void showAmountOfHumanPlayers();
 
-void showAmountOfBotPlayers();
+    void showAmountOfBotPlayers();
 
-void showMineAtPosition(int j, Coord const &mine);
+    void showMineAtPosition(int j, Coord const &mine);
 
-void showGuessNumber(int j);
+    void showGuessNumber(int j);
 
-void showGuessAtPosition(int j, Coord const &mine);
+    void showGuessAtPosition(int j, Coord const &mine);
 
-void showAmountOfGuessForAPLayer(const std::string &name, const unsigned int &guesses);
+    void showAmountOfGuessForAPLayer(const std::string &name, const unsigned int &guesses);
 
-void showMessage(std::string message);
+    void showMessage(std::string message);
 
-void showWinner(std::string name);
+    void showWinner(const std::string &name);
 
+    void showPlayersUsernamesTitle();
+
+    void showMoreMinesThanCells(const std::vector<Player> &players, const Board &board);
 }

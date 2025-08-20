@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "minefield/coord.h"
-#include "minefield/render.h"
+#include "coord.h"
+#include "render.h"
 
 static const int kMinDim = 5;
 static const int kMaxDim = 50;

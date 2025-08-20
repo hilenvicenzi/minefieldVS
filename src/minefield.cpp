@@ -5,6 +5,7 @@ int main()
 {
     GameContext ctx;
     MineGameContext::configEventHandler(ctx);
+    ctx.uiEvent = MineUiEvents::configUiEventHandler();
     ctx.currentState = State { &MineGameStates::stateMainMenuUpdate };
     while (ctx.currentState.updateFunction != nullptr)
     {
