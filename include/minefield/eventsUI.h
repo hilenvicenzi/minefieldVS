@@ -21,14 +21,15 @@ enum class UiAction
     ShowPlayersUsernames,
     MoreMinesThanCells
 };
+using BoardWithBool = std::pair<std::reference_wrapper<const Board>, bool>;
+using PlayersWithBoard = std::pair<std::reference_wrapper<const std::vector<Player>>, std::reference_wrapper<const Board>>;
 
 using UiEventArgs = std::variant<std::monostate,
-    const Board,
+    std::reference_wrapper<Board const>,
     const std::string,
     bool,
-    std::pair<const Board, bool>,
-    std::pair<const std::vector<Player>, const Board>
->;
+    BoardWithBool,
+    PlayersWithBoard>;
 struct UiEvent
 {
     UiAction action;

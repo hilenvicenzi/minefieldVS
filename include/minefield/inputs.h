@@ -4,7 +4,7 @@
 
 namespace MineInputs
 {
-bool isValidDimension(unsigned int value);
-std::string getPlayerNameFromUser(int number, bool isBot);
-unsigned int askValidDimensions(AxisOptions axisOption);
+    bool isValidDimension(unsigned int value);
+    std::string getPlayerNameFromUser(int number, bool isBot, std::istream& in, std::ostream& out);
+    unsigned int askValidDimensions(AxisOptions axisOption, std::istream& in, std::ostream& out);
 } // namespace MineInputs

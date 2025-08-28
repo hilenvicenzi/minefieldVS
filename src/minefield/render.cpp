@@ -118,9 +118,6 @@ void showPlayerData(Player const &player)
 
 void clearConsoleBuffer()
 {
-    /*static std::mutex mutex;
-    std::lock_guard<std::mutex> lock(mutex);
-    */
     static char const *const kClearConsoleBufferCommand = "cls";
     system(kClearConsoleBufferCommand);
 }

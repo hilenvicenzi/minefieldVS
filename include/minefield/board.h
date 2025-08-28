@@ -34,6 +34,5 @@ enum class AxisOptions
 namespace MineBoard
 {
 void makeCellUsed(Board &board, const Coord &coord);
-bool isValidDimension(unsigned int value);
 
 } // namespace MineBoard

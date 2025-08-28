@@ -72,7 +72,8 @@ Coord chooseMineCoord(GameContext& ctx, Player& player, unsigned int j, GetCoord
 
 void addMines(GameContext& ctx,
              GetCoordFn const& botCoordFn = [](GameContext& c, Player&, unsigned int) { return MineBot::getValidBotCoord(c.table); },
-             GetCoordFn const& humanCoordFn = [](GameContext& c, Player&, unsigned int) { return MineCoord::askValidCoordAndEmpty(c.table); });
+    GetCoordFn const& humanCoordFn = [](GameContext& c, Player&, unsigned int)
+    { return MineCoord::askValidCoordAndEmpty(c.table, std::cout); });
 
 using GetGuessFn = std::function<Coord(GameContext&, Player&, unsigned int)>;
 
@@ -80,7 +81,8 @@ Coord chooseGuessCoord(GameContext& ctx, Player& player, unsigned int j, GetCoor
 
 void addGuesses(GameContext& ctx,
                 GetCoordFn const& botGuessdFn = [](GameContext& c, Player&, unsigned int){ return MineBot::getValidBotCoord(c.table); },
-                GetGuessFn const& humanGuessFn = [](GameContext& c, Player&, unsigned int){ return MineCoord::askValidCoordAndEmpty(c.table); });
+    GetGuessFn const& humanGuessFn = [](GameContext& c, Player&, unsigned int)
+    { return MineCoord::askValidCoordAndEmpty(c.table, std::cout); });
 
 unsigned int amountOfCurrentGuesses(const GameContext &ctx);
 

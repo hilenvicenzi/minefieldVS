@@ -6,13 +6,19 @@
 
 namespace MineGameStates
 {
-NextState stateMainMenuUpdate(GameContext &ctx)
-{
+    std::istream& getInputStream()
+    {
+        return std::cin; 
+    }
+
+    NextState stateMainMenuUpdate(GameContext& ctx)
+    {
     ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
     ctx.uiEvent(UiEvent{UiAction::ShowMenu, std::monostate{}});
     int opt = 0;
     static constexpr int kOptionPlay = 1;
-    std::cin >> opt;
+    auto& in = getInputStream();
+    in >> opt;
     if (opt == kOptionPlay)
     {
         return {&stateConfigUpdate};
@@ -20,37 +26,38 @@ NextState stateMainMenuUpdate(GameContext &ctx)
     return {nullptr};
 }
 
-unsigned int askValidNumberOfMines()
+unsigned int askValidNumberOfMines(std::istream& in)
 {
     unsigned int mines = 0;
     while (mines < kMinMine || mines > kMaxMine)
     {
-        std::cin >> mines;
+        in >> mines;
     }
     return mines;
 }
 
-State stateConfigUpdate(GameContext &ctx)
+State stateConfigUpdate(GameContext& ctx)
 {
     ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
     ctx.players.clear();
     ctx.uiEvent(UiEvent{UiAction::ShowConfigurationTitle, std::monostate{}});
 
     ctx.uiEvent(UiEvent{UiAction::ShowTableMeasurement, std::monostate{}});
-    unsigned int validWidth = MineInputs::askValidDimensions(AxisOptions::AxisOptionWidth);
-    unsigned int validHeight = MineInputs::askValidDimensions(AxisOptions::AxisOptionHeight);
+    unsigned int validWidth = MineInputs::askValidDimensions(AxisOptions::AxisOptionWidth, std::cin, std::cout);
+    unsigned int validHeight = MineInputs::askValidDimensions(AxisOptions::AxisOptionHeight, std::cin, std::cout);
     ctx.table.cellCount = validHeight * validWidth;
 
     ctx.uiEvent(UiEvent{UiAction::ShowMinesLimits, std::monostate{}});
-    unsigned int validMines = askValidNumberOfMines();
+    unsigned int validMines = askValidNumberOfMines(std::cin);
 
     int amountOfRealPlayers = 0;
     ctx.uiEvent(UiEvent{UiAction::ShowAmountOfHumanPlayers, std::monostate{}});
-    std::cin >> amountOfRealPlayers;
+    auto& in = getInputStream();
+    in >> amountOfRealPlayers;
 
     int amountOfBotPlayers = 0;
     ctx.uiEvent(UiEvent{UiAction::ShowAmountOfBotPlayers, std::monostate{}});
-    std::cin >> amountOfBotPlayers;
+    in >> amountOfBotPlayers;
 
     int totalAmountOfPlayers = amountOfRealPlayers + amountOfBotPlayers;
 
@@ -59,7 +66,7 @@ State stateConfigUpdate(GameContext &ctx)
     for (int i = 0; i < totalAmountOfPlayers; i++)
     {
         bool isBot = (i >= amountOfRealPlayers) ? true : false;
-        std::string name = MineInputs::getPlayerNameFromUser(i, isBot);
+        std::string name = MineInputs::getPlayerNameFromUser(i, isBot, std::cin, std::cout);
         MinePlayer::setPlayersNames(ctx.players, name, i, validMines, isBot);
     }
 
@@ -124,7 +131,7 @@ State stateCheckVictory(GameContext &ctx)
     {
         ctx.uiEvent(UiEvent{UiAction::ClearConsoleBuffer, std::monostate{}});
         ctx.uiEvent(UiEvent{UiAction::ShowBoard, ctx.table});
-        ctx.uiEvent(UiEvent{UiAction::MoreMinesThanCells, });
+        ctx.uiEvent(UiEvent{UiAction::MoreMinesThanCells, std::pair<std::vector<Player> const, Board const>{ctx.players, ctx.table}});
         ctx.uiEvent(UiEvent{UiAction::ShowWinner, MinePlayer::winnerPlayer(ctx.players).name});
         ctx.uiEvent(UiEvent{UiAction::EnterToContinue, false});
         return {&stateMainMenuUpdate};

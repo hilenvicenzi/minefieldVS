@@ -8,31 +8,31 @@ bool isValidDimension(unsigned int value)
     return value >= kMinDim && value <= kMaxDim;
 }
 
-std::string getPlayerNameFromUser(int number, bool isBot)
+std::string getPlayerNameFromUser(int number, bool isBot, std::istream& in, std::ostream& out)
 {
     if (!isBot)
     {
         std::string name;
-        std::cout << "Player" << (number + 1) << " -> ";
-        std::cin >> name;
+        out << "Player" << (number + 1) << " -> ";
+        in >> name;
         return name;
     }
     else
     {
         std::ostringstream oss;
         oss << "Bot" << number;
-        std::cout << "Player" << (number + 1) << " -> " << oss.str() << "\n";
+        out << "Player" << (number + 1) << " -> " << oss.str() << "\n";
         return oss.str();
     }
 }
 
-unsigned int askValidDimensions(AxisOptions axisOption)
+unsigned int askValidDimensions(AxisOptions axisOption, std::istream& in, std::ostream& out)
 {
     unsigned int value = 0;
     while (!isValidDimension(value))
     {
-        std::cout << ((axisOption == AxisOptions::AxisOptionWidth) ? "Width: " : "Height: ");
-        std::cin >> value;
+        out << ((axisOption == AxisOptions::AxisOptionWidth) ? "Width: " : "Height: ");
+        in >> value;
     }
     return value;
 }

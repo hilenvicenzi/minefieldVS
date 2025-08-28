@@ -8,102 +8,102 @@ namespace MineUiEvents
         {
             switch (e.action)
             {
-            case UiAction::ClearConsoleBuffer:
-            {
-                MineRender::clearConsoleBuffer();
-                break;
-            }
-            case UiAction::ClearScreenAndShowBoard:
-            {
-                if (std::holds_alternative<std::pair<const Board, bool>>(e.args))
+                case UiAction::ClearConsoleBuffer:
                 {
-                    auto& data = std::get<std::pair<const Board, bool>>(e.args);
-                    MineRender::clsAndShowBoard(data.first, data.second);
+                    MineRender::clearConsoleBuffer();
+                    break;
                 }
-                break;
-            }
-            case UiAction::ShowMenu:
-            {
-                MineRender::showMenu();
-                break;
-            }
-            case UiAction::ShowConfigurationTitle:
-            {
-                MineRender::showConfigurationTitle();
-                break;
-            }
-            case UiAction::ShowTableMeasurement:
-            {
-                MineRender::showTableMeasurement();
-                break;
-            }
-            case UiAction::ShowMinesLimits:
-            {
-                MineRender::showMinesLimits();
-                break;
-            }
-            case UiAction::ShowAmountOfHumanPlayers:
-            {
-                MineRender::showAmountOfHumanPlayers();
-                break;
-            }
-            case UiAction::ShowAmountOfBotPlayers:
-            {
-                MineRender::showAmountOfBotPlayers();
-                break;
-            }
-            case UiAction::ShowPlayersUsernames:
-            {
-                MineRender::showPlayersUsernamesTitle();
-                break;
-            }
-            case UiAction::ShowBoard:
-            {
-                if (std::holds_alternative<const Board>(e.args))
+                case UiAction::ClearScreenAndShowBoard:
                 {
-                    auto& dataBoard = std::get<const Board>(e.args);
-                    MineRender::showBoard(dataBoard);
+                    if (std::holds_alternative<BoardWithBool>(e.args))
+                    {
+                        auto& data = std::get<BoardWithBool>(e.args);
+                        MineRender::clsAndShowBoard(data.first.get(), data.second);
+                    }
+                    break;
                 }
-                break;
-            }
-            case UiAction::ShowMessage:
-            {
-                if (std::holds_alternative<const std::string>(e.args))
+                case UiAction::ShowMenu:
                 {
-                    auto& dataMessage = std::get<const std::string>(e.args);
-                    MineRender::showMessage(dataMessage);
+                    MineRender::showMenu();
+                    break;
                 }
-                break;
-            }
-            case UiAction::ShowWinner:
-            {
-                if (std::holds_alternative<const std::string>(e.args))
+                case UiAction::ShowConfigurationTitle:
                 {
-                    auto& dataWinner = std::get<const std::string>(e.args);
-                    MineRender::showWinner(dataWinner);
+                    MineRender::showConfigurationTitle();
+                    break;
                 }
-                break;
-            }
-            case UiAction::EnterToContinue:
-            {
-                if (std::holds_alternative<bool>(e.args))
+                case UiAction::ShowTableMeasurement:
                 {
-                    bool isBot = std::get<bool>(e.args);
-                    MineRender::enterToContinue(isBot);
+                    MineRender::showTableMeasurement();
+                    break;
                 }
-                break;
-            }
-            case UiAction::MoreMinesThanCells:
-            {
-                if (std::holds_alternative<std::pair<const std::vector<Player>, Board const>>(e.args))
+                case UiAction::ShowMinesLimits:
                 {
-                    auto& moreMinesData = std::get<std::pair<std::vector<Player> const, Board const>>(e.args);
-                    MineRender::showMoreMinesThanCells(moreMinesData.first, moreMinesData.second);
+                    MineRender::showMinesLimits();
+                    break;
                 }
-                break;
-            }
-            default:
-                break;
+                case UiAction::ShowAmountOfHumanPlayers:
+                {
+                    MineRender::showAmountOfHumanPlayers();
+                    break;
+                }
+                case UiAction::ShowAmountOfBotPlayers:
+                {
+                    MineRender::showAmountOfBotPlayers();
+                    break;
+                }
+                case UiAction::ShowPlayersUsernames:
+                {
+                    MineRender::showPlayersUsernamesTitle();
+                    break;
+                }
+                case UiAction::ShowBoard:
+                {
+                    if (std::holds_alternative<std::reference_wrapper<Board const>>(e.args))
+                    {
+                        auto& dataBoard = std::get<std::reference_wrapper<Board const>>(e.args);
+                        MineRender::showBoard(dataBoard.get());
+                    }
+                    break;
+                }
+                case UiAction::ShowMessage:
+                {
+                    if (std::holds_alternative<const std::string>(e.args))
+                    {
+                        auto& dataMessage = std::get<const std::string>(e.args);
+                        MineRender::showMessage(dataMessage);
+                    }
+                    break;
+                }
+                case UiAction::ShowWinner:
+                {
+                    if (std::holds_alternative<const std::string>(e.args))
+                    {
+                        auto& dataWinner = std::get<const std::string>(e.args);
+                        MineRender::showWinner(dataWinner);
+                    }
+                    break;
+                }
+                case UiAction::EnterToContinue:
+                {
+                    if (std::holds_alternative<bool>(e.args))
+                    {
+                        bool isBot = std::get<bool>(e.args);
+                        MineRender::enterToContinue(isBot);
+                    }
+                    break;
+                }
+                case UiAction::MoreMinesThanCells:
+                {
+                    if (std::holds_alternative<PlayersWithBoard>(e.args))
+                    {
+                        auto& moreMinesData = std::get<PlayersWithBoard>(e.args);
+                        MineRender::showMoreMinesThanCells(moreMinesData.first.get(), moreMinesData.second.get());
+                    }
+                    break;
+                }
+                default:
+                    break;
             };
         };
     }

@@ -6,8 +6,7 @@ namespace MinePlayer
 {
     void addNewPlayer(std::vector<Player> &players, std::string playerName, int number, unsigned int mines, bool isBot)
     {
-        Player newPlayer{playerName, number, mines, isBot, {}, {}};
-        players.push_back(newPlayer);
+        players.emplace_back(playerName, number, mines, isBot, std::vector<Coord>{}, std::vector<Coord>{});
     }
 
     void setPlayersNames(std::vector<Player> &player, const std::string &playerName, int number, unsigned int mines, bool isBot)

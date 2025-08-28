@@ -10,7 +10,7 @@ struct Coord
 
 namespace MineCoord
 {
-Coord askValidCoord(const Board &board);
-bool containsCoordinate(const std::vector<Coord> &coordinates, Coord coord);
-Coord askValidCoordAndEmpty(const Board &board);
+    Coord askValidCoord(Board const& board, std::istream& in, std::ostream& out);
+    bool containsCoordinate(const std::vector<Coord> &coordinates, Coord coord);
+    Coord askValidCoordAndEmpty(Board const& board, std::ostream& out);
 } // namespace MineCoord
